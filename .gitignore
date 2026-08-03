@@ -1,0 +1,17 @@
+# binaries
+wow-exporter
+
+# Go
+*.exe
+*.test
+*.out
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# secrets
+.env

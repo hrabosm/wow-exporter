@@ -1,0 +1,11 @@
+services:
+  wow-exporter:
+    image: wow-exporter:latest
+    container_name: wow-exporter
+    restart: unless-stopped
+
+    ports:
+      - "9105:9105"
+
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
