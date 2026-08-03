@@ -17,8 +17,6 @@ WORKDIR /app
 
 COPY --from=builder /app/wow-exporter .
 
-COPY config.yaml .
-
 EXPOSE 9105
 
 CMD ["./wow-exporter"]
