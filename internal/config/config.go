@@ -6,6 +6,8 @@ type Character struct {
 	Region string `yaml:"region"`
 }
 
-type File struct {
+type Config struct {
+	CurrentTier string `yaml:"current-tier"`
+
 	Characters []Character `yaml:"characters"`
 }

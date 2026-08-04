@@ -25,7 +25,7 @@ func main() {
 
 	log.Printf("Loaded characters: %+v", cfg.Characters)
 
-	wowCollector := collector.NewWowCollector(cfg.Characters)
+	wowCollector := collector.NewWowCollector(cfg.Characters, cfg.CurrentTier)
 
 	prometheus.MustRegister(wowCollector)
 

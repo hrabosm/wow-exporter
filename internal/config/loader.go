@@ -6,7 +6,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func Load(path string) (*File, error) {
+func Load(path string) (*Config, error) {
 
 	data, err := os.ReadFile(path)
 
@@ -14,7 +14,7 @@ func Load(path string) (*File, error) {
 		return nil, err
 	}
 
-	var config File
+	var config Config
 
 	err = yaml.Unmarshal(data, &config)
 

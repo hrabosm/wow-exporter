@@ -16,6 +16,16 @@ type Character struct {
 			All float64 `json:"all"`
 		} `json:"scores"`
 	} `json:"mythic_plus_scores_by_season"`
+
+	RaidProgression map[string]RaidProgression `json:"raid_progression"`
+}
+
+type RaidProgression struct {
+	Summary            string `json:"summary"`
+	TotalBosses        int    `json:"total_bosses"`
+	NormalBossesKilled int    `json:"normal_bosses_killed"`
+	HeroicBossesKilled int    `json:"heroic_bosses_killed"`
+	MythicBossesKilled int    `json:"mythic_bosses_killed"`
 }
 
 func (c *Character) ItemLevel() float64 {

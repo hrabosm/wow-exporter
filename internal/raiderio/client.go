@@ -9,7 +9,7 @@ import (
 func GetCharacter(name string, realm string, region string) (*Character, error) {
 
 	url := fmt.Sprintf(
-		"https://raider.io/api/v1/characters/profile?region=%s&realm=%s&name=%s&fields=mythic_plus_scores_by_season:current,gear",
+		"https://raider.io/api/v1/characters/profile?region=%s&realm=%s&name=%s&fields=mythic_plus_scores_by_season:current,gear,raid_progression",
 		region,
 		realm,
 		name,
@@ -27,6 +27,14 @@ func GetCharacter(name string, realm string, region string) (*Character, error) 
 	err = json.NewDecoder(response.Body).Decode(&character)
 	if err != nil {
 		return nil, err
+	}
+
+	for raid, progress := range character.RaidProgression {
+		fmt.Println("Raid:", raid)
+		fmt.Println("Summary:", progress.Summary)
+		fmt.Println("Total bosses:", progress.TotalBosses)
+		fmt.Println("Mythic killed:", progress.MythicBossesKilled)
+		fmt.Println("---")
 	}
 
 	return &character, nil

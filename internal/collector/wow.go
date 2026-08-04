@@ -10,21 +10,24 @@ import (
 )
 
 type WowCollector struct {
-	characters []config.Character
+	characters  []config.Character
+	currentTier string
 
 	cache *cache.Cache[*raiderio.Character]
 
 	itemLevelDesc *prometheus.Desc
 	mythicDesc    *prometheus.Desc
+	raidDesc      *prometheus.Desc
 
 	upDesc *prometheus.Desc
 
 	apiErrors prometheus.Counter
 }
 
-func NewWowCollector(characters []config.Character) *WowCollector {
+func NewWowCollector(characters []config.Character, currentTier string) *WowCollector {
 	return &WowCollector{
-		characters: characters,
+		characters:  characters,
+		currentTier: currentTier,
 
 		cache: cache.New[*raiderio.Character](),
 
@@ -65,6 +68,18 @@ func NewWowCollector(characters []config.Character) *WowCollector {
 				Help: "Total number of Raider.IO API errors",
 			},
 		),
+
+		raidDesc: prometheus.NewDesc(
+			"wow_raid_progression",
+			"Current raid progression",
+			[]string{
+				"character",
+				"realm",
+				"raid",
+				"summary",
+			},
+			nil,
+		),
 	}
 }
 
@@ -96,7 +111,7 @@ func (c *WowCollector) Collect(ch chan<- prometheus.Metric) {
 			c.cache.Set(
 				key,
 				character,
-				5*time.Minute,
+				15*time.Minute,
 			)
 		}
 
@@ -120,6 +135,20 @@ func (c *WowCollector) Collect(ch chan<- prometheus.Metric) {
 			character.MythicRating(),
 			labels...,
 		)
+
+		raid, ok := character.RaidProgression[c.currentTier]
+
+		if ok {
+			ch <- prometheus.MustNewConstMetric(
+				c.raidDesc,
+				prometheus.GaugeValue,
+				float64(raid.MythicBossesKilled),
+				character.Name,
+				character.Realm,
+				c.currentTier,
+				raid.Summary,
+			)
+		}
 	}
 
 	up := float64(0)
@@ -142,6 +171,7 @@ func (c *WowCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.itemLevelDesc
 	ch <- c.mythicDesc
 	ch <- c.upDesc
+	ch <- c.raidDesc
 
 	c.apiErrors.Describe(ch)
 }
