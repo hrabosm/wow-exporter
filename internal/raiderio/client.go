@@ -29,13 +29,5 @@ func GetCharacter(name string, realm string, region string) (*Character, error) 
 		return nil, err
 	}
 
-	for raid, progress := range character.RaidProgression {
-		fmt.Println("Raid:", raid)
-		fmt.Println("Summary:", progress.Summary)
-		fmt.Println("Total bosses:", progress.TotalBosses)
-		fmt.Println("Mythic killed:", progress.MythicBossesKilled)
-		fmt.Println("---")
-	}
-
 	return &character, nil
 }
