@@ -18,6 +18,7 @@ type WowCollector struct {
 	itemLevelDesc *prometheus.Desc
 	mythicDesc    *prometheus.Desc
 	raidDesc      *prometheus.Desc
+	raidTotalDesc *prometheus.Desc
 
 	upDesc *prometheus.Desc
 
@@ -71,12 +72,23 @@ func NewWowCollector(characters []config.Character, currentTier string) *WowColl
 
 		raidDesc: prometheus.NewDesc(
 			"wow_raid_progression",
-			"Current raid progression",
+			"Current raid progression by difficulty",
 			[]string{
 				"character",
 				"realm",
 				"raid",
-				"summary",
+				"difficulty",
+			},
+			nil,
+		),
+
+		raidTotalDesc: prometheus.NewDesc(
+			"wow_raid_total_bosses",
+			"Total number of bosses in the current raid",
+			[]string{
+				"character",
+				"realm",
+				"raid",
 			},
 			nil,
 		),
@@ -142,11 +154,40 @@ func (c *WowCollector) Collect(ch chan<- prometheus.Metric) {
 			ch <- prometheus.MustNewConstMetric(
 				c.raidDesc,
 				prometheus.GaugeValue,
+				float64(raid.NormalBossesKilled),
+				character.Name,
+				character.Realm,
+				c.currentTier,
+				"normal",
+			)
+
+			ch <- prometheus.MustNewConstMetric(
+				c.raidDesc,
+				prometheus.GaugeValue,
+				float64(raid.HeroicBossesKilled),
+				character.Name,
+				character.Realm,
+				c.currentTier,
+				"heroic",
+			)
+
+			ch <- prometheus.MustNewConstMetric(
+				c.raidDesc,
+				prometheus.GaugeValue,
 				float64(raid.MythicBossesKilled),
 				character.Name,
 				character.Realm,
 				c.currentTier,
-				raid.Summary,
+				"mythic",
+			)
+
+			ch <- prometheus.MustNewConstMetric(
+				c.raidTotalDesc,
+				prometheus.GaugeValue,
+				float64(raid.TotalBosses),
+				character.Name,
+				character.Realm,
+				c.currentTier,
 			)
 		}
 	}
@@ -172,6 +213,7 @@ func (c *WowCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.mythicDesc
 	ch <- c.upDesc
 	ch <- c.raidDesc
+	ch <- c.raidTotalDesc
 
 	c.apiErrors.Describe(ch)
 }
